@@ -6,8 +6,6 @@ from torch.autograd import Variable
 import librosa
 from .stft import STFT
 import os
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 class MelSpectrogram(torch.nn.Module):
     """
@@ -26,7 +24,7 @@ class MelSpectrogram(torch.nn.Module):
         
         self.stft = STFT(filter_length=self.filter_length, hop_length=self.hop_length)
         mel_filters = librosa.filters.mel(self.sample_rate, self.filter_length, self.num_mels)
-        self.mel_filter_bank = Variable(torch.FloatTensor(mel_filters).cuda(), requires_grad=False)
+        self.register_buffer("mel_filter_bank", torch.FloatTensor(mel_filters))
 
     def forward(self, input_data):
         magnitude, phase = self.stft.transform(input_data)
